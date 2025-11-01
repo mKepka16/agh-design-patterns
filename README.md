@@ -85,9 +85,72 @@ class Driver {
 
 ### Relations
 - `@OneToOne(() => TargetEntity, { joinColumn: { name, referencedColumn, type, nullable? }, inverseProperty? })` creates a foreign key on the decorated entity and enforces uniqueness for 1:1 mappings.
+- `@ManyToOne(() => TargetEntity, { joinColumn: { name, referencedColumn, type, nullable? }, inverseProperty? })` places the foreign key on the decorated entity and automatically links the inverse one-to-many side.
 - `@OneToMany(() => TargetEntity, { joinColumn: { name, referencedColumn, type, nullable? }, inverseProperty? })` attaches a foreign key column to the target entity so multiple rows can reference the source.
+- `@ManyToMany(() => TargetEntity, { joinTable: { name, joinColumn, inverseJoinColumn }, inverseProperty })` builds a join table that references both entities. Only the owning side provides `joinTable`; the inverse side references the owning property via `inverseProperty`.
 
 Join columns are required because pgorm does not infer foreign-key column names or types. The referenced column must already exist on the target entity (typically defined with `@Column`).
+
+Example:
+```ts
+@Entity('features')
+class Feature {
+  @Column({ columnName: 'feature_id', columnType: 'INTEGER', primary: true })
+  id!: number;
+
+  @ManyToMany(() => Car, { inverseProperty: 'features' })
+  cars!: Car[];
+}
+
+@Entity('cars')
+class Car {
+  @OneToMany(() => Driver, {
+    joinColumn: { name: 'car_id', referencedColumn: 'car_id', type: 'INTEGER' },
+    inverseProperty: 'car',
+  })
+  drivers!: Driver[];
+
+  @ManyToMany(() => Feature, {
+    joinTable: {
+      name: 'car_features',
+      joinColumn: { name: 'car_id', referencedColumn: 'car_id', type: 'INTEGER' },
+      inverseJoinColumn: {
+        name: 'feature_id',
+        referencedColumn: 'feature_id',
+        type: 'INTEGER',
+      },
+    },
+    inverseProperty: 'cars',
+  })
+  features!: Feature[];
+}
+
+@Entity('drivers')
+class Driver {
+  @Column({ columnName: 'driver_id', columnType: 'INTEGER', primary: true })
+  id!: number;
+
+  @ManyToOne(() => Car, {
+    joinColumn: { name: 'car_id', referencedColumn: 'car_id', type: 'INTEGER' },
+    inverseProperty: 'drivers',
+  })
+  car!: Car;
+
+  @ManyToMany(() => Feature, {
+    joinTable: {
+      name: 'car_features',
+      joinColumn: { name: 'car_id', referencedColumn: 'car_id', type: 'INTEGER' },
+      inverseJoinColumn: {
+        name: 'feature_id',
+        referencedColumn: 'feature_id',
+        type: 'INTEGER',
+      },
+    },
+    inverseProperty: 'cars',
+  })
+  features!: Feature[];
+}
+```
 
 Example:
 ```ts

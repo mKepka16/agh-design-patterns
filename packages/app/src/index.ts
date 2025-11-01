@@ -1,80 +1,14 @@
+import 'dotenv/config';
+import 'reflect-metadata';
 import {
-  Column,
-  Entity,
-  OneToMany,
-  OneToOne,
   PgOrmFacade,
   PostgresDriver,
   type PostgresDriverConfig,
 } from '@agh-design-patterns/pgorm';
-import 'dotenv/config';
-import 'reflect-metadata';
 
-@Entity('drivers')
-class Driver {
-  @Column({ columnName: 'driver_id', columnType: 'INTEGER', primary: true })
-  id!: number;
-
-  @Column({ columnName: 'full_name' })
-  fullName!: string;
-
-  @Column({ columnName: 'experience_years', columnType: 'INTEGER' })
-  yearsOfExperience!: number;
-
-  @Column({ columnName: 'driver_rating', columnType: 'DOUBLE PRECISION' })
-  rating!: number;
-
-  @Column({ columnName: 'is_active' })
-  active!: boolean;
-
-  @Column({
-    columnName: 'last_ride_rating',
-    columnType: 'DOUBLE PRECISION',
-    nullable: true,
-  })
-  lastRideRating!: number | null;
-}
-
-@Entity('cars')
-class Car {
-  @Column({ columnName: 'car_id', columnType: 'INTEGER', primary: true })
-  id!: number;
-
-  @Column({ columnName: 'model_name' })
-  model!: string;
-
-  @Column({ columnName: 'list_price', columnType: 'DOUBLE PRECISION' })
-  price!: number;
-
-  @Column({ columnName: 'is_available' })
-  available!: boolean;
-
-  @Column({
-    columnName: 'optional_discount',
-    columnType: 'DOUBLE PRECISION',
-    nullable: true,
-  })
-  discount!: number | null;
-
-  @OneToMany(() => Driver, {
-    joinColumn: {
-      name: 'car_id',
-      referencedColumn: 'car_id',
-      type: 'INTEGER',
-    },
-  })
-  drivers!: Driver[];
-
-  @OneToOne(() => Driver, {
-    joinColumn: {
-      name: 'primary_driver_id',
-      referencedColumn: 'driver_id',
-      type: 'INTEGER',
-      nullable: true,
-    },
-  })
-  primaryDriver!: Driver | null;
-}
+import './entities/car';
+import './entities/driver';
+import './entities/feature';
 
 async function bootstrap(): Promise<void> {
   const config: PostgresDriverConfig = {
@@ -119,7 +53,7 @@ async function logTableDefinitions(
           AND table_name = ANY($1::text[])
         ORDER BY table_name, ordinal_position;
       `,
-      [['cars', 'drivers']]
+      [['cars', 'drivers', 'car_features', 'features']]
     );
 
     console.log('column types in database:');
@@ -153,7 +87,7 @@ async function logTableDefinitions(
           AND tc.table_name = ANY($1::text[])
         ORDER BY tc.table_name, kcu.column_name;
       `,
-      [['cars', 'drivers']]
+      [['cars', 'drivers', 'car_features', 'features']]
     );
 
     if (foreignKeys.rows.length) {
@@ -182,7 +116,7 @@ async function logTableDefinitions(
           AND tc.table_name = ANY($1::text[])
         ORDER BY tc.table_name, kcu.column_name;
       `,
-      [['cars', 'drivers']]
+      [['cars', 'drivers', 'car_features', 'features']]
     );
 
     if (uniqueConstraints.rows.length) {
