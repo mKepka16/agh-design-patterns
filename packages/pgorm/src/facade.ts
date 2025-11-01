@@ -1,4 +1,4 @@
-import { entityMetadata, type ColumnDbEngineType } from './metadata-store';
+import { entityMetadata } from './metadata-store';
 import { PostgresDriver, type PostgresDriverConfig } from './postgres-driver';
 
 export class PgOrmFacade {
@@ -19,7 +19,10 @@ export class PgOrmFacade {
       await this.driver.execute(`DROP TABLE IF EXISTS ${tableName} CASCADE;`);
 
       const columnsSql = metadata.columns
-        .map((column) => `${this.quoteIdentifier(column.name)} ${column.type}`)
+        .map((column) => {
+          const nullability = column.nullable ? '' : ' NOT NULL';
+          return `${this.quoteIdentifier(column.name)} ${column.type}${nullability}`;
+        })
         .join(', ');
 
       if (!columnsSql) {
