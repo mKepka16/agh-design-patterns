@@ -14,6 +14,10 @@
     "declarationMap": true,
     "incremental": true,
     "skipLibCheck": true,
-    "noEmitOnError": true
+    "noEmitOnError": true,
+
+    // decorators & reflection metadata
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   }
 }
