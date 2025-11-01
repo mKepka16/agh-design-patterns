@@ -1,10 +1,9 @@
+import { collectJoinTableMetadata } from './join-tables';
 import {
-  collectJoinTableMetadata,
   entityMetadata,
   resolvePendingRelations,
-  type EntityMetadata,
-  type RelationMetadata,
-} from './metadata-store';
+} from './entity-store';
+import { type EntityMetadata, type RelationMetadata } from './types';
 import { PostgresDriver, type PostgresDriverConfig } from './postgres-driver';
 
 export class PgOrmFacade {
