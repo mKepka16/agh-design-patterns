@@ -1,4 +1,14 @@
-export { Column, Entity, entityMetadata } from './metadata-store';
+export {
+  Column,
+  Entity,
+  OneToOne,
+  OneToMany,
+  entityMetadata,
+  type ColumnMetadata,
+  type EntityMetadata,
+  type RelationMetadata,
+  type ColumnDbEngineType,
+} from './metadata-store';
 export {
   PgOrmFacade,
 } from './facade';
