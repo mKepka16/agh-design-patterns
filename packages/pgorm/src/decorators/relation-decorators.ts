@@ -21,7 +21,7 @@ type JoinColumnConfig = {
 };
 
 type OneToOneOptions = {
-  joinColumn: JoinColumnConfig;
+  joinColumn?: JoinColumnConfig;
   inverseProperty?: string | symbol;
 };
 
@@ -65,38 +65,63 @@ export function OneToOne(
       const sourceMetadata = ensureEntityMetadata(sourceConstructor);
       const targetMetadata = ensureEntityMetadata(targetConstructor);
 
-      const ownerJoinColumn = normalizeRelationJoinColumn(options.joinColumn);
-      const nullable = ownerJoinColumn.nullable;
+      const ownerJoinColumn = options.joinColumn
+        ? normalizeRelationJoinColumn(options.joinColumn)
+        : undefined;
+      const inversePropertyName = options.inverseProperty ?? propertyKey;
 
-      upsertColumn(sourceMetadata, {
-        name: ownerJoinColumn.name,
-        type: ownerJoinColumn.type,
-        nullable,
-        unique: true,
-      });
+      if (ownerJoinColumn) {
+        const nullable = ownerJoinColumn.nullable;
 
-      validateReferencedColumn(
-        targetMetadata,
-        ownerJoinColumn,
-        `${sourceConstructor.name}.${String(propertyKey)}`
-      );
+        upsertColumn(sourceMetadata, {
+          name: ownerJoinColumn.name,
+          type: ownerJoinColumn.type,
+          nullable,
+          unique: true,
+        });
 
-      addOrUpdateRelation(sourceMetadata, {
-        kind: 'one-to-one',
-        propertyName: propertyKey,
-        target: targetConstructor,
-        owner: true,
-        joinColumn: { ...ownerJoinColumn, unique: true },
-        inverseProperty: options.inverseProperty,
-      });
+        validateReferencedColumn(
+          targetMetadata,
+          ownerJoinColumn,
+          `${sourceConstructor.name}.${String(propertyKey)}`
+        );
 
-      addOrUpdateRelation(targetMetadata, {
-        kind: 'one-to-one',
-        propertyName: options.inverseProperty ?? propertyKey,
-        target: sourceConstructor,
-        owner: false,
-        inverseProperty: propertyKey,
-      });
+        addOrUpdateRelation(sourceMetadata, {
+          kind: 'one-to-one',
+          propertyName: propertyKey,
+          target: targetConstructor,
+          owner: true,
+          joinColumn: { ...ownerJoinColumn, unique: true },
+          inverseProperty: options.inverseProperty,
+        });
+
+        addOrUpdateRelation(targetMetadata, {
+          kind: 'one-to-one',
+          propertyName: inversePropertyName,
+          target: sourceConstructor,
+          owner: false,
+          inverseProperty: propertyKey,
+        });
+      } else {
+        addOrUpdateRelation(sourceMetadata, {
+          kind: 'one-to-one',
+          propertyName: propertyKey,
+          target: targetConstructor,
+          owner: false,
+          inverseProperty: inversePropertyName,
+        });
+
+        const ownerRelation = targetMetadata.relations.find(
+          (relation) =>
+            relation.kind === 'one-to-one' &&
+            relation.owner &&
+            relation.propertyName === inversePropertyName
+        );
+
+        if (ownerRelation) {
+          ownerRelation.inverseProperty = propertyKey;
+        }
+      }
 
       entityMetadata.set(sourceConstructor, sourceMetadata);
       entityMetadata.set(targetConstructor, targetMetadata);

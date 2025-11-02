@@ -6,7 +6,7 @@ export class Feature {
   @Column({ columnName: 'feature_id', columnType: 'INTEGER', primary: true })
   id!: number;
 
-  @Column({ columnName: 'feature_name', columnType: 'TEXT' })
+  @Column()
   name!: string;
 
   @ManyToMany(() => Car, { inverseProperty: 'features' })

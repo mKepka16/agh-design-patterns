@@ -1,22 +1,22 @@
-import { Column, Entity, ManyToOne } from '@agh-design-patterns/pgorm';
+import { Column, Entity, ManyToOne, OneToOne } from '@agh-design-patterns/pgorm';
 import { Car } from './car';
 
 @Entity('drivers')
 export class Driver {
-  @Column({ columnName: 'driver_id2', columnType: 'INTEGER', primary: true })
+  @Column({ columnName: 'driver_id', columnType: 'INTEGER', primary: true })
   id!: number;
 
-  @Column({ columnName: 'full_name' })
+  @Column()
   fullName!: string;
 
   @Column({ columnName: 'experience_years', columnType: 'INTEGER' })
   yearsOfExperience!: number;
 
-  @Column({ columnName: 'driver_rating', columnType: 'DOUBLE PRECISION' })
+  @Column({ columnType: 'DOUBLE PRECISION' })
   rating!: number;
 
   @Column({ columnName: 'is_active' })
-  active!: boolean;
+  isActive!: boolean;
 
   @Column({
     columnName: 'last_ride_rating',
@@ -27,7 +27,7 @@ export class Driver {
 
   @ManyToOne(() => Car, {
     joinColumn: {
-      name: 'car_id',
+      name: 'driver_car_id',
       referencedColumn: 'car_id',
       type: 'INTEGER',
     },
@@ -35,13 +35,7 @@ export class Driver {
   })
   car!: Car;
 
-  @ManyToOne(() => Car, {
-    joinColumn: {
-      name: 'primary_car_id',
-      referencedColumn: 'car_id',
-      type: 'INTEGER',
-      nullable: true,
-    },
+  @OneToOne(() => Car, {
     inverseProperty: 'primaryDriver',
   })
   primaryCar!: Car | null;

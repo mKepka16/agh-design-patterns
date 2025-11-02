@@ -23,11 +23,11 @@ export type RelationKind =
   | 'many-to-many';
 
 export type RelationJoinColumn = {
-  name: string;
-  referencedColumn: string;
-  type: ColumnDbEngineType;
-  nullable: boolean;
-  unique?: boolean;
+  name: string; // Column name in the source entity
+  referencedColumn: string; // Column name in the target entity
+  type: ColumnDbEngineType; // Type of FK column
+  nullable: boolean; // Whether the FK column is nullable
+  unique?: boolean; // Whether the FK column is unique
 };
 
 export type RelationJoinTable = {
@@ -38,9 +38,9 @@ export type RelationJoinTable = {
 
 export type RelationMetadata = {
   kind: RelationKind;
-  propertyName: string | symbol;
+  propertyName: string | symbol; // TS name of the property in source entity
   target: GenericConstructor;
-  owner: boolean;
+  owner: boolean; // Whether this side owns the relationship - has the FK or join table
   joinColumn?: RelationJoinColumn;
   joinTable?: RelationJoinTable;
   inverseProperty?: string | symbol;

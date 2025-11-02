@@ -23,14 +23,6 @@ export function ensureEntityMetadata(
     entityMetadata.set(constructor, metadata);
   }
 
-  metadata.ctor = constructor;
-  if (!metadata.columns) {
-    metadata.columns = [];
-  }
-  if (!metadata.relations) {
-    metadata.relations = [];
-  }
-
   return metadata;
 }
 

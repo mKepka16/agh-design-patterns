@@ -7,17 +7,17 @@ export class Car {
   @Column({ columnName: 'car_id', columnType: 'INTEGER', primary: true })
   id!: number;
 
-  @Column({ columnName: 'model_name' })
+  @Column({ columnName: 'model' })
   model!: string;
 
-  @Column({ columnName: 'list_price', columnType: 'DOUBLE PRECISION' })
+  @Column({ columnName: 'price', columnType: 'DOUBLE PRECISION' })
   price!: number;
 
   @Column({ columnName: 'is_available' })
-  available!: boolean;
+  isAvailable!: boolean;
 
   @Column({
-    columnName: 'optional_discount',
+    columnName: 'discount',
     columnType: 'DOUBLE PRECISION',
     nullable: true,
   })
@@ -25,7 +25,7 @@ export class Car {
 
   @OneToMany(() => Driver, {
     joinColumn: {
-      name: 'car_id',
+      name: 'driver_car_id',
       referencedColumn: 'car_id',
       type: 'INTEGER',
     },
@@ -36,7 +36,7 @@ export class Car {
   @OneToOne(() => Driver, {
     joinColumn: {
       name: 'primary_driver_id',
-      referencedColumn: 'driver_id2',
+      referencedColumn: 'driver_id',
       type: 'INTEGER',
       nullable: true,
     },
@@ -48,12 +48,12 @@ export class Car {
     joinTable: {
       name: 'car_features',
       joinColumn: {
-        name: 'car_id',
+        name: 'join_table_car_id',
         referencedColumn: 'car_id',
         type: 'INTEGER',
       },
       inverseJoinColumn: {
-        name: 'feature_id',
+        name: 'join_table_feature_id',
         referencedColumn: 'feature_id',
         type: 'INTEGER',
       },
