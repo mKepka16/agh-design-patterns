@@ -68,6 +68,7 @@ type ColumnOptions = {
   primary?: boolean;                // marks the column as PRIMARY KEY
   nullable?: boolean;               // defaults to false
   unique?: boolean;                 // convenience helper for UNIQUE constraints
+  autoIncrement?: boolean;          // INTEGER primary key -> SERIAL in Postgres
 };
 ```
 
@@ -81,7 +82,20 @@ class Driver {
   @Column({ columnName: 'rating', columnType: 'DOUBLE PRECISION', nullable: true })
   rating!: number | null;
 }
+
+@Entity('customers')
+class Customer {
+  @Column({ columnName: 'customer_id', columnType: 'INTEGER', primary: true, autoIncrement: true })
+  id!: number; // becomes SERIAL under the hood
+
+  @Column({ columnName: 'customer_name', columnType: 'TEXT' })
+  name!: string;
+}
+
+// autoIncrement only works for INTEGER primary keys and forces NOT NULL + UNIQUE.
 ```
+
+> ℹ️ `autoIncrement: true` is limited to integer primary keys. pgorm maps it to Postgres `SERIAL`, so the database creates the sequence and enforces `NOT NULL` automatically.
 
 ### Relations
 - `@OneToOne(() => TargetEntity, { joinColumn: { name, referencedColumn, type, nullable? }, inverseProperty? })` creates a foreign key on the decorated entity and enforces uniqueness for 1:1 mappings.

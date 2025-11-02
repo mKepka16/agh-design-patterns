@@ -9,6 +9,8 @@ import {
 import './entities/car';
 import './entities/driver';
 import './entities/feature';
+import './entities/customer';
+import './entities/order';
 import { logTableDefinitions } from './debug-utils';
 
 async function bootstrap(): Promise<void> {
@@ -29,6 +31,8 @@ async function bootstrap(): Promise<void> {
       'drivers',
       'features',
       'car_features',
+      'orders',
+      'customers',
     ]);
     setTimeout(() => {
       setTimeout(() => {

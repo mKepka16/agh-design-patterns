@@ -40,6 +40,9 @@ export function upsertColumn(
     if (column.unique !== undefined) {
       existing.unique = column.unique;
     }
+    if (column.autoIncrement !== undefined) {
+      existing.autoIncrement = column.autoIncrement;
+    }
     if (existing.primary) {
       existing.unique = true;
     }

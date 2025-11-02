@@ -9,6 +9,7 @@ export type DatabaseColumnSnapshot = {
   nullable: boolean;
   unique: boolean;
   primary: boolean;
+  autoIncrement: boolean;
 };
 
 export type DatabaseTableSnapshot = {

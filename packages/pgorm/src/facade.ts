@@ -6,7 +6,7 @@ import { loadCurrentSchema } from './schema/snapshot';
 import { DatabaseSchemaSnapshot } from './schema/types';
 import { tableNeedsRebuild, foreignKeyExists } from './schema/diff';
 import { buildAddForeignKeyStatement } from './schema/foreign-keys';
-import { quoteIdentifier } from './sql-utils';
+import { mapColumnType, quoteIdentifier } from './sql-utils';
 
 export class PgOrmFacade {
   constructor(private readonly driver: PostgresDriver) {}
@@ -62,10 +62,11 @@ export class PgOrmFacade {
       const tableName = quoteIdentifier(metadata.tableName);
 
       const columnDefinitions = metadata.columns.map((column) => {
+        const columnType = mapColumnType(column.type, column.autoIncrement);
         const nullability = column.nullable ? '' : ' NOT NULL';
         const primary = column.primary ? ' PRIMARY KEY' : '';
         const uniqueness = !column.primary && column.unique ? ' UNIQUE' : '';
-        return `${quoteIdentifier(column.name)} ${column.type}${nullability}${primary}${uniqueness}`;
+        return `${quoteIdentifier(column.name)} ${columnType}${nullability}${primary}${uniqueness}`;
       });
 
       if (columnDefinitions.length === 0) {

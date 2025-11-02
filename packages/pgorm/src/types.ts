@@ -14,6 +14,7 @@ export type ColumnMetadata = {
   nullable: boolean;
   primary?: boolean;
   unique?: boolean;
+  autoIncrement?: boolean;
 };
 
 export type RelationKind =

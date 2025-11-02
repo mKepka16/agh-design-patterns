@@ -15,9 +15,10 @@ export async function loadCurrentSchema(
     column_name: string;
     data_type: string;
     is_nullable: 'YES' | 'NO';
+    column_default: string | null;
   }>(
     `
-      SELECT table_name, column_name, data_type, is_nullable
+      SELECT table_name, column_name, data_type, is_nullable, column_default
       FROM information_schema.columns
       WHERE table_schema = 'public';
     `
@@ -33,6 +34,8 @@ export async function loadCurrentSchema(
       nullable: row.is_nullable === 'YES',
       unique: false,
       primary: false,
+      autoIncrement:
+        row.column_default !== null && /nextval\('/i.test(row.column_default),
     });
   }
 

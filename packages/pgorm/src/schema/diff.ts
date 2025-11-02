@@ -48,6 +48,12 @@ export function tableNeedsRebuild(
       );
     }
 
+    if ((column.autoIncrement ?? false) !== existing.autoIncrement) {
+      reasons.push(
+        `autoincrement mismatch on ${column.name} (expected ${column.autoIncrement ?? false}, actual ${existing.autoIncrement})`
+      );
+    }
+
     const expectedPrimary = column.primary ?? false;
     const expectedUnique = expectedPrimary ? true : column.unique ?? false;
     if (expectedPrimary !== !!existing.primary) {
@@ -101,5 +107,10 @@ export function foreignKeyExists(
 }
 
 function columnTypeMatches(expected: string, actual: string): boolean {
-  return expected.toUpperCase() === actual.toUpperCase();
+  const normalize = (value: string) => {
+    const upper = value.toUpperCase();
+    return upper === 'SERIAL' ? 'INTEGER' : upper;
+  };
+
+  return normalize(expected) === normalize(actual);
 }

@@ -30,11 +30,20 @@ const typescriptToDefaultDbEngineColumnType: Record<
 
 export type ColumnOptions = {
   columnName?: string;
-  columnType?: ColumnDbEngineType;
   nullable?: boolean;
-  primary?: boolean;
   unique?: boolean;
-};
+} & (
+  | {
+      columnType?: ColumnDbEngineType;
+      primary?: boolean;
+      autoIncrement?: false;
+    }
+  | {
+      columnType: 'INTEGER';
+      primary: true;
+      autoIncrement: true;
+    }
+);
 
 export function Column(options?: ColumnOptions) {
   return function (target: object, propertyKey: string | symbol): void {
@@ -74,6 +83,7 @@ export function Column(options?: ColumnOptions) {
     const primary = options?.primary ?? false;
     const nullable = primary ? false : options?.nullable ?? false;
     const unique = options?.unique ?? primary;
+    const autoIncrement = options?.autoIncrement ?? false;
 
     upsertColumn(entity, {
       name: columnName,
@@ -81,6 +91,7 @@ export function Column(options?: ColumnOptions) {
       nullable,
       primary,
       unique,
+      autoIncrement,
     });
 
     entityMetadata.set(constructor, entity);
