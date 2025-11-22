@@ -14,10 +14,13 @@ export function ensureEntityMetadata(
 ): EntityMetadata {
   let metadata = entityMetadata.get(constructor);
   if (!metadata) {
+    // const parentConstructor = Object.getPrototypeOf(constructor);
+    // const parentMetadata = entityMetadata.get(parentConstructor);
+
     metadata = {
       tableName: constructor.name.toLowerCase(),
-      columns: [],
-      relations: [],
+      columns: [], // parentMetadata ? [...parentMetadata.columns] : [],
+      relations: [], // parentMetadata ? [...parentMetadata.relations] : [],
       ctor: constructor,
     };
     entityMetadata.set(constructor, metadata);
