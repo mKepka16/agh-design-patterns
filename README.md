@@ -50,6 +50,7 @@ Detailed documentation is available in the `docs/` directory:
 -   **[Defining Entities](docs/defining-entities.md)**: How to define entities and columns using decorators.
 -   **[Relationships](docs/relationships.md)**: Guide to One-to-One, One-to-Many, Many-to-One, and Many-to-Many relationships.
 -   **[Schema Synchronization](docs/synchronization.md)**: Understanding the schema synchronization process.
+-   **[Architecture](docs/architecture.md)**: Logical architecture of the system.
 -   **[Design Patterns](docs/design-patterns.md)**: Explanation of the design patterns used in this project.
 -   **[Inheritance Strategy](docs/inheritance-strategy.md)**: Explanation of the Table Per Concrete Class mapping strategy.
 -   **[Roadmap](docs/roadmap.md)**: Planned features and future direction.

@@ -1,7 +1,11 @@
 import { collectJoinTableMetadata } from './join-tables';
 import { entityMetadata, resolvePendingRelations } from './entity-store';
 import type { EntityMetadata, RelationMetadata } from './types';
-import { PostgresDriver, type PostgresDriverConfig } from './postgres-driver';
+import {
+  PostgresDriver,
+  type PostgresDriverConfig,
+  type DatabaseDriver,
+} from './postgres-driver';
 import { loadCurrentSchema } from './schema/snapshot';
 import { DatabaseSchemaSnapshot } from './schema/types';
 import { tableNeedsRebuild, foreignKeyExists } from './schema/diff';
@@ -9,7 +13,7 @@ import { buildAddForeignKeyStatement } from './schema/foreign-keys';
 import { mapColumnType, quoteIdentifier } from './sql-utils';
 
 export class PgOrmFacade {
-  constructor(private readonly driver: PostgresDriver) {}
+  constructor(private readonly driver: DatabaseDriver) {}
 
   static fromConfig(config: PostgresDriverConfig): PgOrmFacade {
     return new PgOrmFacade(new PostgresDriver(config));

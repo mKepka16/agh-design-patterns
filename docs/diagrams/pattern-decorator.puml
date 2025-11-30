@@ -1,0 +1,19 @@
+@startuml
+class UserEntity {
+    + id: number
+    + name: string
+}
+
+annotation "@Entity" as EntityDecorator
+annotation "@Column" as ColumnDecorator
+
+class EntityMetadata {
+    + tableName: string
+    + columns: ColumnMetadata[]
+}
+
+UserEntity .. EntityDecorator : decorated by
+UserEntity .. ColumnDecorator : decorated by
+EntityDecorator ..> EntityMetadata : creates/updates
+ColumnDecorator ..> EntityMetadata : creates/updates
+@enduml

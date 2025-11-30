@@ -1,0 +1,28 @@
+@startuml
+package "@agh-design-patterns/app" {
+    [User Entities]
+    [App Logic]
+}
+
+package "@agh-design-patterns/pgorm" {
+    [PgOrmFacade]
+    [Decorators]
+    [EntityStore]
+    [SchemaSync]
+    [PostgresDriver]
+}
+
+package "External" {
+    [pg (node-postgres)]
+}
+
+[App Logic] --> [PgOrmFacade] : calls
+[App Logic] --> [Decorators] : uses
+[User Entities] ..> [Decorators] : annotated by
+[Decorators] --> [EntityStore] : registers metadata
+[PgOrmFacade] --> [EntityStore] : reads metadata
+[PgOrmFacade] --> [SchemaSync] : delegates sync
+[PgOrmFacade] --> [PostgresDriver] : uses
+[SchemaSync] --> [PostgresDriver] : executes DDL
+[PostgresDriver] --> [pg (node-postgres)] : adapts
+@enduml

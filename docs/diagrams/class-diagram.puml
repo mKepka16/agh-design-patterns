@@ -1,0 +1,46 @@
+@startuml
+class PgOrmFacade {
+    - driver: PostgresDriver
+    + static fromConfig(config): PgOrmFacade
+    + synchronize(): Promise<void>
+    + close(): Promise<void>
+}
+
+class PostgresDriver {
+    - pool: Pool
+    + execute(sql, params): Promise<void>
+    + query(sql, params): Promise<QueryResult>
+    + end(): Promise<void>
+}
+
+class EntityMetadata {
+    + tableName: string
+    + columns: ColumnMetadata[]
+    + relations: RelationMetadata[]
+    + ctor: Function
+}
+
+class ColumnMetadata {
+    + name: string
+    + type: string
+    + nullable: boolean
+    + primary: boolean
+}
+
+class RelationMetadata {
+    + kind: string
+    + target: Function
+    + joinColumn: RelationJoinColumn
+}
+
+class EntityStore {
+    + entityMetadata: Map<Function, EntityMetadata>
+    + ensureEntityMetadata(ctor): EntityMetadata
+}
+
+PgOrmFacade --> PostgresDriver
+PgOrmFacade ..> EntityStore
+EntityStore *-- EntityMetadata
+EntityMetadata *-- ColumnMetadata
+EntityMetadata *-- RelationMetadata
+@enduml

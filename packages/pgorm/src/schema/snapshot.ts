@@ -1,4 +1,4 @@
-import { PostgresDriver } from '../postgres-driver';
+import { DatabaseDriver } from '../postgres-driver';
 import {
   DatabaseColumnSnapshot,
   DatabaseSchemaSnapshot,
@@ -6,7 +6,7 @@ import {
 } from './types';
 
 export async function loadCurrentSchema(
-  driver: PostgresDriver
+  driver: DatabaseDriver
 ): Promise<DatabaseSchemaSnapshot> {
   const tables = new Map<string, DatabaseTableSnapshot>();
 

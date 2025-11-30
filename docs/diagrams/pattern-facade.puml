@@ -1,0 +1,27 @@
+@startuml
+class Client {
+}
+
+class PgOrmFacade {
+    + synchronize()
+}
+
+package "Subsystem" {
+    class EntityStore {
+        + resolvePendingRelations()
+        + entityMetadata
+    }
+    class SchemaSync {
+        + loadCurrentSchema()
+        + tableNeedsRebuild()
+    }
+    class PostgresDriver {
+        + execute()
+    }
+}
+
+Client -> PgOrmFacade : uses
+PgOrmFacade -> EntityStore : coordinates
+PgOrmFacade -> SchemaSync : coordinates
+PgOrmFacade -> PostgresDriver : coordinates
+@enduml

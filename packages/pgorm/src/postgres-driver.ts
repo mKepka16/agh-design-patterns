@@ -2,7 +2,16 @@ import { Pool, PoolConfig, QueryResult, QueryResultRow } from 'pg';
 
 export type PostgresDriverConfig = PoolConfig;
 
-export class PostgresDriver {
+export interface DatabaseDriver {
+  execute(sql: string, params?: unknown[]): Promise<void>;
+  query<T extends QueryResultRow = QueryResultRow>(
+    sql: string,
+    params?: unknown[]
+  ): Promise<QueryResult<T>>;
+  end(): Promise<void>;
+}
+
+export class PostgresDriver implements DatabaseDriver {
   private readonly pool: Pool;
 
   constructor(config: PostgresDriverConfig) {
