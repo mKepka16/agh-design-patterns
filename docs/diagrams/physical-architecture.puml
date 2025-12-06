@@ -1,0 +1,17 @@
+@startuml
+node "Development Machine" {
+    component "Node.js Runtime" {
+        [Client Application] as App
+        [ORM Library] as ORM
+    }
+}
+
+node "Docker Host" {
+    database "PostgreSQL Container" {
+        [PostgreSQL Server] as DB
+    }
+}
+
+App --> ORM : uses
+ORM --> DB : TCP/IP (Port 5432)
+@enduml
