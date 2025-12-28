@@ -1,21 +1,10 @@
 import { Column, Entity, OneToMany, OneToOne, ManyToMany } from '@agh-design-patterns/pgorm';
 import { Driver } from './driver';
 import { Feature } from './feature';
+import { Vehicle } from './vehicle';
 
 @Entity('cars')
-export class Car {
-  @Column({ columnName: 'car_id', columnType: 'INTEGER', primary: true })
-  id!: number;
-
-  @Column({ columnName: 'model' })
-  model!: string;
-
-  @Column({ columnName: 'price', columnType: 'DOUBLE PRECISION' })
-  price!: number;
-
-  @Column({ columnName: 'is_available' })
-  isAvailable!: boolean;
-
+export class Car extends Vehicle {
   @Column({
     columnName: 'discount',
     columnType: 'DOUBLE PRECISION',
@@ -26,7 +15,7 @@ export class Car {
   @OneToMany(() => Driver, {
     joinColumn: {
       name: 'driver_car_id',
-      referencedColumn: 'car_id',
+      referencedColumn: 'id',
       type: 'INTEGER',
     },
     inverseProperty: 'car',
@@ -49,7 +38,7 @@ export class Car {
       name: 'car_features',
       joinColumn: {
         name: 'join_table_car_id',
-        referencedColumn: 'car_id',
+        referencedColumn: 'id',
         type: 'INTEGER',
       },
       inverseJoinColumn: {

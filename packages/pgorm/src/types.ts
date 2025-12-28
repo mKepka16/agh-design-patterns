@@ -52,4 +52,5 @@ export type EntityMetadata = {
   columns: ColumnMetadata[];
   relations: RelationMetadata[];
   ctor: GenericConstructor;
+  isMappedSuperclass?: boolean;
 };

@@ -12,6 +12,9 @@ export function collectJoinTableMetadata(): EntityMetadata[] {
   const joinTables = new Map<string, EntityMetadata>();
 
   for (const metadata of entityMetadata.values()) {
+    if (metadata.isMappedSuperclass) {
+      continue;
+    }
     for (const relation of metadata.relations) {
       if (relation.kind !== 'many-to-many' || !relation.owner) {
         continue;

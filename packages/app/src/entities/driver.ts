@@ -28,7 +28,7 @@ export class Driver {
   @ManyToOne(() => Car, {
     joinColumn: {
       name: 'driver_car_id',
-      referencedColumn: 'car_id',
+      referencedColumn: 'id',
       type: 'INTEGER',
     },
     inverseProperty: 'drivers',

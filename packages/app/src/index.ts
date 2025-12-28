@@ -34,19 +34,15 @@ async function bootstrap(): Promise<void> {
       'orders',
       'customers',
     ]);
-    setTimeout(() => {
-      setTimeout(() => {
-        const snapshot = Array.from(entityMetadata.entries()).map(
-          ([ctor, meta]) => ({
-            name: ctor.name,
-            table: meta.tableName,
-            columns: meta.columns,
-            relations: meta.relations,
-          })
-        );
-        console.dir(snapshot, { depth: null });
-      }, 1000);
-    }, 1000);
+    const snapshot = Array.from(entityMetadata.entries()).map(
+      ([ctor, meta]) => ({
+        name: ctor.name,
+        table: meta.tableName,
+        columns: meta.columns,
+        relations: meta.relations,
+      })
+    );
+    console.dir(snapshot, { depth: null });
   } finally {
     await orm.close();
   }

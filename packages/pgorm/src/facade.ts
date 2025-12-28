@@ -18,18 +18,36 @@ export class PgOrmFacade {
   async synchronize(): Promise<void> {
     resolvePendingRelations();
 
-    const entityMetadataEntries = Array.from(entityMetadata.values());
+    const allEntityMetadata = Array.from(entityMetadata.values());
+    const concreteEntityMetadata = allEntityMetadata.filter(
+      (m) => !m.isMappedSuperclass
+    );
+    const mappedSuperclassMetadata = allEntityMetadata.filter(
+      (m) => m.isMappedSuperclass
+    );
+
     const joinTableMetadataEntries = collectJoinTableMetadata();
-    const metadataEntries = [
-      ...entityMetadataEntries,
+    const activeMetadataEntries = [
+      ...concreteEntityMetadata,
       ...joinTableMetadataEntries,
     ];
 
     const currentSchema = await loadCurrentSchema(this.pool);
-    const tablesToRebuild = metadataEntries.filter((metadata) =>
+    
+    // Identify tables that exist but are now MappedSuperclasses (should be dropped)
+    // We check for both exact matches and pluralized versions since users might have inconsistent naming
+    const tablesToDropFromMappedSuperclass = mappedSuperclassMetadata.flatMap(
+      (m) => {
+        const candidates = [m.tableName, m.tableName + 's'];
+        return candidates.filter(name => currentSchema.has(name)).map(name => ({ ...m, tableName: name }));
+      }
+    );
+
+    const tablesToRebuild = activeMetadataEntries.filter((metadata) =>
       tableNeedsRebuild(metadata, currentSchema)
     );
-    const tablesUnchanged = metadataEntries.filter(
+    
+    const tablesUnchanged = activeMetadataEntries.filter(
       (metadata) => !tablesToRebuild.includes(metadata)
     );
 
@@ -39,11 +57,14 @@ export class PgOrmFacade {
       );
     }
 
-    await this.dropTables(tablesToRebuild);
+    const tablesToDrop = [...tablesToRebuild, ...tablesToDropFromMappedSuperclass];
+    await this.dropTables(tablesToDrop);
+    
+    // Only create tables for concrete entities and join tables
     await this.createTables(tablesToRebuild);
 
     const schemaAfterTables = await loadCurrentSchema(this.pool);
-    await this.ensureForeignKeys(metadataEntries, schemaAfterTables);
+    await this.ensureForeignKeys(activeMetadataEntries, schemaAfterTables);
   }
 
   async close(): Promise<void> {

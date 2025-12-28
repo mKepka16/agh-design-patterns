@@ -62,3 +62,17 @@ class Product {
   sku!: string;
 }
 ```
+
+## Helper Decorators
+
+### `@MappedSuperclass`
+
+The `@MappedSuperclass` decorator is used for classes that are not themselves entities (no corresponding table) but are extended by other entities. Child entities inherit all columns and relations defined in the mapped superclass.
+
+```typescript
+@MappedSuperclass()
+export class BaseEntity {
+  @Column({ primary: true })
+  id!: number;
+}
+```
