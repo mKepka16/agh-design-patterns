@@ -1,16 +1,14 @@
 @startuml
 class PgOrmFacade {
-    - driver: PostgresDriver
+    - pool: Pool
     + static fromConfig(config): PgOrmFacade
     + synchronize(): Promise<void>
     + close(): Promise<void>
 }
 
-class PostgresDriver {
-    - pool: Pool
-    + execute(sql, params): Promise<void>
-    + query(sql, params): Promise<QueryResult>
-    + end(): Promise<void>
+class Pool {
+    + query(text, params): Promise
+    + end(): Promise
 }
 
 class EntityMetadata {
@@ -38,7 +36,7 @@ class EntityStore {
     + ensureEntityMetadata(ctor): EntityMetadata
 }
 
-PgOrmFacade --> PostgresDriver
+PgOrmFacade --> Pool
 PgOrmFacade ..> EntityStore
 EntityStore *-- EntityMetadata
 EntityMetadata *-- ColumnMetadata
