@@ -22,6 +22,5 @@ export {
   PgOrmFacade,
 } from './facade';
 export {
-  PostgresDriver,
-  type PostgresDriverConfig,
-} from './postgres-driver';
+  type PoolConfig as PostgresDriverConfig,
+} from 'pg';

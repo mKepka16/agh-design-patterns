@@ -1,13 +1,11 @@
-import {
-  type PostgresDriverConfig,
-  PostgresDriver,
-} from '@agh-design-patterns/pgorm';
+import { type PostgresDriverConfig } from '@agh-design-patterns/pgorm';
+import { Pool } from 'pg';
 
 export async function logTableDefinitions(
   config: PostgresDriverConfig,
   tableNames: string[]
 ): Promise<void> {
-  const driver = new PostgresDriver(config);
+  const driver = new Pool(config);
 
   try {
     const result = await driver.query<{

@@ -53,7 +53,7 @@ The logical architecture describes the software components and their interaction
     -   **Decorators**: `@Entity`, `@Column`, etc., used to define metadata.
     -   **Metadata Store**: A singleton registry (`entityMetadata`) holding the schema definitions.
     -   **Schema Synchronization**: Logic to compare metadata with the actual database schema (`diff`, `drop`, `create`).
-    -   **Driver Adapter**: `PostgresDriver` wrapping the low-level `pg` library.
+    -   **Database Driver**: Uses `pg` library directly.
 
 3.  **Infrastructure Layer**:
     -   **node-postgres (`pg`)**: The low-level driver handling the raw protocol communication with PostgreSQL.
@@ -118,28 +118,6 @@ We wanted the entity definitions to be plain TypeScript classes (POJOs) so they 
 
 ![Decorator Pattern](diagrams/pattern-decorator.png)
 
-### 4.3. Adapter Pattern
-
-**Usage**: `PostgresDriver`
-
-**Description:**
-The **Adapter** pattern allows incompatible interfaces to work together. `PostgresDriver` wraps the external `pg` (node-postgres) library and implements the `DatabaseDriver` interface. It adapts the `pg.Pool` interface to a simpler, domain-specific interface (`execute`, `query`, `end`) required by our ORM.
-
-**Why this pattern was chosen?**
-The `pg` library has a specific API that might change or might be too low-level for our needs. By wrapping it in an Adapter (`PostgresDriver`) implementing `DatabaseDriver`, we decouple our ORM core logic from the specific database driver. This simplifies the internal code (which only relies on our `DatabaseDriver` interface) and makes it easier to switch to a different driver or mock the database connection for testing purposes in the future.
-
-**Pros and Cons:**
--   **Pros**:
-    -   **Interoperability**: Allows incompatible interfaces to work together.
-    -   **Reusability**: The existing `pg` library can be reused without modification.
-    -   **Decoupling**: Decouples the client code from the specific implementation of the adaptee.
--   **Cons**:
-    -   **Complexity**: Increases the overall complexity of the code by adding new classes.
-    -   **Overhead**: Can introduce a slight runtime overhead due to the additional layer of indirection.
-
-**Class Diagram:**
-
-![Adapter Pattern](diagrams/pattern-adapter.png)
 
 ## 5. Inheritance Strategy
 

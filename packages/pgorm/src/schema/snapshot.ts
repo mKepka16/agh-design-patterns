@@ -1,4 +1,4 @@
-import { DatabaseDriver } from '../postgres-driver';
+import { Pool } from 'pg';
 import {
   DatabaseColumnSnapshot,
   DatabaseSchemaSnapshot,
@@ -6,11 +6,11 @@ import {
 } from './types';
 
 export async function loadCurrentSchema(
-  driver: DatabaseDriver
+  pool: Pool
 ): Promise<DatabaseSchemaSnapshot> {
   const tables = new Map<string, DatabaseTableSnapshot>();
 
-  const columnsResult = await driver.query<{
+  const columnsResult = await pool.query<{
     table_name: string;
     column_name: string;
     data_type: string;
@@ -39,7 +39,7 @@ export async function loadCurrentSchema(
     });
   }
 
-  const uniquenessResult = await driver.query<{
+  const uniquenessResult = await pool.query<{
     table_name: string;
     column_name: string;
     contype: 'p' | 'u';
@@ -72,7 +72,7 @@ export async function loadCurrentSchema(
     }
   }
 
-  const fkResult = await driver.query<{
+  const fkResult = await pool.query<{
     table_name: string;
     column_name: string;
     foreign_table_name: string;

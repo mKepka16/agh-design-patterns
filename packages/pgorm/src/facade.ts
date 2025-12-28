@@ -1,11 +1,7 @@
 import { collectJoinTableMetadata } from './join-tables';
 import { entityMetadata, resolvePendingRelations } from './entity-store';
 import type { EntityMetadata, RelationMetadata } from './types';
-import {
-  PostgresDriver,
-  type PostgresDriverConfig,
-  type DatabaseDriver,
-} from './postgres-driver';
+import { Pool, PoolConfig } from 'pg';
 import { loadCurrentSchema } from './schema/snapshot';
 import { DatabaseSchemaSnapshot } from './schema/types';
 import { tableNeedsRebuild, foreignKeyExists } from './schema/diff';
@@ -13,10 +9,10 @@ import { buildAddForeignKeyStatement } from './schema/foreign-keys';
 import { mapColumnType, quoteIdentifier } from './sql-utils';
 
 export class PgOrmFacade {
-  constructor(private readonly driver: DatabaseDriver) {}
+  constructor(private readonly pool: Pool) {}
 
-  static fromConfig(config: PostgresDriverConfig): PgOrmFacade {
-    return new PgOrmFacade(new PostgresDriver(config));
+  static fromConfig(config: PoolConfig): PgOrmFacade {
+    return new PgOrmFacade(new Pool(config));
   }
 
   async synchronize(): Promise<void> {
@@ -29,7 +25,7 @@ export class PgOrmFacade {
       ...joinTableMetadataEntries,
     ];
 
-    const currentSchema = await loadCurrentSchema(this.driver);
+    const currentSchema = await loadCurrentSchema(this.pool);
     const tablesToRebuild = metadataEntries.filter((metadata) =>
       tableNeedsRebuild(metadata, currentSchema)
     );
@@ -46,18 +42,18 @@ export class PgOrmFacade {
     await this.dropTables(tablesToRebuild);
     await this.createTables(tablesToRebuild);
 
-    const schemaAfterTables = await loadCurrentSchema(this.driver);
+    const schemaAfterTables = await loadCurrentSchema(this.pool);
     await this.ensureForeignKeys(metadataEntries, schemaAfterTables);
   }
 
   async close(): Promise<void> {
-    await this.driver.end();
+    await this.pool.end();
   }
 
   private async dropTables(metadatas: EntityMetadata[]): Promise<void> {
     for (const metadata of metadatas) {
       const tableName = quoteIdentifier(metadata.tableName);
-      await this.driver.execute(`DROP TABLE IF EXISTS ${tableName} CASCADE;`);
+      await this.pool.query(`DROP TABLE IF EXISTS ${tableName} CASCADE;`);
     }
   }
 
@@ -80,7 +76,7 @@ export class PgOrmFacade {
       const statement = `CREATE TABLE ${tableName} (${columnDefinitions.join(
         ', '
       )});`;
-      await this.driver.execute(statement);
+      await this.pool.query(statement);
       console.log(`[pgorm] Recreated table ${metadata.tableName}`);
     }
   }
@@ -104,7 +100,7 @@ export class PgOrmFacade {
         }
 
         const statement = buildAddForeignKeyStatement(metadata, relation);
-        await this.driver.execute(statement);
+        await this.pool.query(statement);
 
         const targetMetadata = entityMetadata.get(relation.target);
         console.log(

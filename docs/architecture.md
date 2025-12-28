@@ -22,7 +22,7 @@ The logical architecture describes the software components and their interaction
     -   **Decorators**: `@Entity`, `@Column`, etc., used to define metadata.
     -   **Metadata Store**: A singleton registry (`entityMetadata`) holding the schema definitions.
     -   **Schema Synchronization**: Logic to compare metadata with the actual database schema (`diff`, `drop`, `create`).
-    -   **Driver Adapter**: `PostgresDriver` wrapping the low-level `pg` library.
+    -   **Database Driver**: Uses `pg` library directly.
 
 3.  **Infrastructure Layer**:
     -   **node-postgres (`pg`)**: The low-level driver handling the raw protocol communication with PostgreSQL.
