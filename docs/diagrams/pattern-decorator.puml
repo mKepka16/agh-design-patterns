@@ -1,19 +1,45 @@
 @startuml
-class UserEntity {
-    + id: number
-    + name: string
+interface "ClassDefinition" as Component {
 }
 
-annotation "@Entity" as EntityDecorator
-annotation "@Column" as ColumnDecorator
-
-class EntityMetadata {
-    + tableName: string
-    + columns: ColumnMetadata[]
+class "User" as ConcreteComponent {
 }
 
-UserEntity .. EntityDecorator : decorated by
-UserEntity .. ColumnDecorator : decorated by
-EntityDecorator ..> EntityMetadata : creates/updates
-ColumnDecorator ..> EntityMetadata : creates/updates
+abstract class "MetadataDecorator" as Decorator {
+    - component: ClassDefinition
+}
+
+annotation "@Entity" as EntityDecorator {
+    + Entity(tableName)
+}
+
+annotation "@Column" as ColumnDecorator {
+    + Column(options)
+}
+
+annotation "@OneToOne" as OneToOneDecorator {
+    + OneToOne(typeFunction, options)
+}
+
+annotation "@OneToMany" as OneToManyDecorator {
+    + OneToMany(typeFunction, inverseSide, options)
+}
+
+annotation "@ManyToOne" as ManyToOneDecorator {
+    + ManyToOne(typeFunction, inverseSide, options)
+}
+
+annotation "@ManyToMany" as ManyToManyDecorator {
+    + ManyToMany(typeFunction, options)
+}
+
+Component <|.. ConcreteComponent
+Component <|.. Decorator
+Decorator o-- Component
+Decorator <|-- EntityDecorator
+Decorator <|-- ColumnDecorator
+Decorator <|-- OneToOneDecorator
+Decorator <|-- OneToManyDecorator
+Decorator <|-- ManyToOneDecorator
+Decorator <|-- ManyToManyDecorator
 @enduml
