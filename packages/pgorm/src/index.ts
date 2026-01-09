@@ -1,5 +1,6 @@
 export { Column } from './decorators/column-decorator';
 export { Entity } from './decorators/entity-decorator';
+export { EntityManager } from './entity-manager/manager';
 export { MappedSuperclass } from './decorators/mapped-superclass-decorator';
 export {
   OneToOne,
