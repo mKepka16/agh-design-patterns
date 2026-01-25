@@ -1,36 +1,18 @@
 import { Pool } from 'pg';
-import { InsertOperation } from './insert';
-import { SelectOperation, FindAllOptions } from './select';
-import { DeleteOperation, DeleteOptions } from './delete';
-
-export class TableQueryBuilder {
-    private readonly insertOp: InsertOperation;
-    private readonly selectOp: SelectOperation;
-    private readonly deleteOp: DeleteOperation;
-
-    constructor(pool: Pool, tableName: string) {
-        this.insertOp = new InsertOperation(pool, tableName);
-        this.selectOp = new SelectOperation(pool, tableName);
-        this.deleteOp = new DeleteOperation(pool, tableName);
-    }
-
-    async insert(data: Record<string, any>) {
-        return this.insertOp.execute(data);
-    }
-
-    async findAll(options?: FindAllOptions) {
-        return this.selectOp.findAll(options);
-    }
-
-    async deleteMany(options: DeleteOptions) {
-        return this.deleteOp.deleteMany(options);
-    }
-}
+import { Repository } from '../repository';
+import { GenericConstructor } from '../types';
 
 export class EntityManager {
+    private repositories = new Map<GenericConstructor, Repository<any>>();
+
     constructor(private readonly pool: Pool) {}
 
-    table(tableName: string): TableQueryBuilder {
-        return new TableQueryBuilder(this.pool, tableName);
+    getRepository<T extends object>(target: GenericConstructor<T>): Repository<T> {
+        let repository = this.repositories.get(target);
+        if (!repository) {
+            repository = new Repository<T>(this.pool, target);
+            this.repositories.set(target, repository);
+        }
+        return repository;
     }
 }

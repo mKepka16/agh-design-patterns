@@ -3,6 +3,7 @@ import { quoteIdentifier, buildWhereClause } from '../sql-utils';
 
 export type DeleteOptions = {
     where: Record<string, any>;
+    allowAll?: boolean;
 };
 
 export class DeleteOperation {
@@ -13,7 +14,7 @@ export class DeleteOperation {
 
         const { clause, values } = buildWhereClause(options.where);
 
-        if (!clause) {
+        if (!clause && !options.allowAll) {
             throw new Error('Delete operation requires a WHERE clause to avoid deleting all records.');
         }
 

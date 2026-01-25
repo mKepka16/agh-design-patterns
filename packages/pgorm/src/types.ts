@@ -6,10 +6,11 @@ export const columnDbEngineTypes = [
 ] as const;
 export type ColumnDbEngineType = (typeof columnDbEngineTypes)[number];
 
-export type GenericConstructor = { new (...args: unknown[]): object };
+export type GenericConstructor<T = object> = { new (...args: unknown[]): T };
 
 export type ColumnMetadata = {
   name: string;
+  propertyName: string;
   type: ColumnDbEngineType;
   nullable: boolean;
   primary?: boolean;

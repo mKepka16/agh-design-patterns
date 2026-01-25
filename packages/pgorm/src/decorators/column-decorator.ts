@@ -14,9 +14,9 @@ const typescriptToDbEngineColumnType: Record<
   TypescriptColumnType,
   Set<ColumnDbEngineType>
 > = {
-  number: new Set(['DOUBLE PRECISION', 'INTEGER']),
-  boolean: new Set(['BOOLEAN']),
-  string: new Set(['TEXT']),
+  number: new Set<ColumnDbEngineType>(['DOUBLE PRECISION', 'INTEGER']),
+  boolean: new Set<ColumnDbEngineType>(['BOOLEAN']),
+  string: new Set<ColumnDbEngineType>(['TEXT']),
 };
 
 const typescriptToDefaultDbEngineColumnType: Record<
@@ -87,6 +87,7 @@ export function Column(options?: ColumnOptions) {
 
     upsertColumn(entity, {
       name: columnName,
+      propertyName: String(propertyKey),
       type: columnType,
       nullable,
       primary,

@@ -75,6 +75,7 @@ export function OneToOne(
 
         upsertColumn(sourceMetadata, {
           name: ownerJoinColumn.name,
+          propertyName: String(propertyKey),
           type: ownerJoinColumn.type,
           nullable,
           unique: true,
@@ -161,6 +162,7 @@ export function OneToMany(
 
       upsertColumn(targetMetadata, {
         name: targetJoinColumn.name,
+        propertyName: options.inverseProperty ? String(options.inverseProperty) : targetJoinColumn.name,
         type: targetJoinColumn.type,
         nullable,
       });
@@ -191,6 +193,7 @@ export function ManyToOne(
 
     upsertColumn(ensureEntityMetadata(sourceConstructor), {
       name: sourceJoinColumn.name,
+      propertyName: String(propertyKey),
       type: sourceJoinColumn.type,
       nullable: sourceJoinColumn.nullable,
     });

@@ -24,5 +24,12 @@ export {
   PgOrmFacade,
 } from './facade';
 export {
+  Repository,
+  FindOneOptions,
+  FindManyOptions,
+  FindOptionsWhere,
+  DeepPartial,
+} from './repository';
+export {
   type PoolConfig as PostgresDriverConfig,
 } from 'pg';

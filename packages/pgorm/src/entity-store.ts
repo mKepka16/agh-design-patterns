@@ -38,6 +38,7 @@ export function upsertColumn(
   const existing = metadata.columns.find((c) => c.name === column.name);
   if (existing) {
     existing.type = column.type;
+    existing.propertyName = column.propertyName;
     existing.nullable = column.nullable;
     if (column.primary !== undefined) {
       existing.primary = column.primary;
