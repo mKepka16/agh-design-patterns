@@ -7,9 +7,14 @@ import { DatabaseSchemaSnapshot } from './schema/types';
 import { tableNeedsRebuild, foreignKeyExists } from './schema/diff';
 import { buildAddForeignKeyStatement } from './schema/foreign-keys';
 import { mapColumnType, quoteIdentifier } from './sql-utils';
+import { EntityManager } from './entity-manager/manager';
 
 export class PgOrmFacade {
-  constructor(private readonly pool: Pool) {}
+  public readonly entityManager: EntityManager;
+
+  constructor(private readonly pool: Pool) {
+    this.entityManager = new EntityManager(pool);
+  }
 
   static fromConfig(config: PoolConfig): PgOrmFacade {
     return new PgOrmFacade(new Pool(config));

@@ -30,6 +30,7 @@ export function collectJoinTableMetadata(): EntityMetadata[] {
 
       upsertColumn(joinMetadata, {
         name: relation.joinTable.joinColumn.name,
+        propertyName: relation.joinTable.joinColumn.name,
         type: relation.joinTable.joinColumn.type,
         nullable: relation.joinTable.joinColumn.nullable,
         primary: false,
@@ -38,6 +39,7 @@ export function collectJoinTableMetadata(): EntityMetadata[] {
 
       upsertColumn(joinMetadata, {
         name: relation.joinTable.inverseJoinColumn.name,
+        propertyName: relation.joinTable.inverseJoinColumn.name,
         type: relation.joinTable.inverseJoinColumn.type,
         nullable: relation.joinTable.inverseJoinColumn.nullable,
         primary: false,
