@@ -16,4 +16,9 @@ The project is currently in an early development stage. The primary focus has be
 -   Database connection management.
 -   Schema synchronization (DDL generation).
 
+
 Future updates will include data manipulation capabilities (CRUD operations).
+
+## Sample Application
+
+For a complete, real-world example of how to use this library, check out the **[Store Simulator Guide](store-simulator.md)**. It demonstrates entities, relationships, inheritance, and application logic integration.

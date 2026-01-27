@@ -54,6 +54,7 @@ Detailed documentation is available in the `docs/` directory:
 -   **[Design Patterns](docs/design-patterns.md)**: Explanation of the design patterns used in this project.
 -   **[Inheritance Strategy](docs/inheritance-strategy.md)**: Explanation of the Table Per Concrete Class mapping strategy.
 -   **[Roadmap](docs/roadmap.md)**: Planned features and future direction.
+-   **[Store Simulator Guide](docs/store-simulator.md)**: Comprehensive guide to the sample application.
 
 ## `@agh-design-patterns/pgorm`
 
@@ -64,3 +65,26 @@ For detailed usage instructions, please refer to the [Documentation](#documentat
 **Local tooling**
 - `docker-compose.yml` launches PostgreSQL 15 plus pgAdmin 4 (`docker compose up -d`).
 - Copy `packages/app/.env.example` to `packages/app/.env` and adjust credentials before running the sample app.
+
+## Store Simulator App
+
+The `@agh-design-patterns/app` package is a fully featured console-based tycoon game demonstrating the capabilities of `pgorm`.
+
+**Features:**
+- **Income Farming**: Click to earn money or buy passive income items.
+- **Shop**:
+  - **Products**: Buy items like "Lemonade Stand" or "Quantum Computer".
+  - **Upgrades**: Purchase permanent multipliers (e.g., "Golden Click" 2x).
+  - **Inventory**: View your owned items and their production stats.
+- **Ecosystem**:
+  - **Profile**: Customize your user bio.
+  - **Achievements**: Unlock milestones (e.g., "First Paycheck", "Tycoon") with automated tracking.
+  - **Persistence**: All progress (Money, Inventory, Upgrades, Achievements) is saved to PostgreSQL.
+
+**Entities Used:**
+- `User` (Main Player)
+- `Profile` (OneToOne)
+- `Product` & `Upgrade` (BaseItem inheritance)
+- `UserProduct` (ManyToOne/Link entity)
+- `UserUpgrade` (ManyToOne/Link entity)
+- `Achievement` (ManyToMany)
