@@ -9,18 +9,25 @@ package "@agh-design-patterns/pgorm" {
     [Decorators]
     [EntityStore]
     [SchemaSync]
+    [EntityManager]
+    [Repository]
 }
 
 package "External" {
     [pg (node-postgres)]
 }
 
-[App Logic] --> [PgOrmFacade] : calls
+[App Logic] --> [PgOrmFacade] : init & sync
+[App Logic] --> [EntityManager] : getRepository()
 [App Logic] --> [Decorators] : uses
 [User Entities] ..> [Decorators] : annotated by
 [Decorators] --> [EntityStore] : registers metadata
 [PgOrmFacade] --> [EntityStore] : reads metadata
 [PgOrmFacade] --> [SchemaSync] : delegates sync
-[PgOrmFacade] --> [pg (node-postgres)] : uses
-[SchemaSync] --> [pg (node-postgres)] : executes DDL
+[PgOrmFacade] *-- [EntityManager] : owns
+[EntityManager] o-- [Repository] : manages
+[Repository] --> [EntityStore] : reads metadata
+[Repository] --> [pg (node-postgres)] : executes DML (CRUD)
+[SchemaSync] --> [pg (node-postgres)] : reads schema (introspection)
+[PgOrmFacade] --> [pg (node-postgres)] : executes DDL & manages pool
 @enduml

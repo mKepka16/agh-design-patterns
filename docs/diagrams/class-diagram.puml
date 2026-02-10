@@ -1,44 +1,100 @@
 @startuml
-class PgOrmFacade {
-    - pool: Pool
-    + static fromConfig(config): PgOrmFacade
-    + synchronize(): Promise<void>
-    + close(): Promise<void>
+skinparam classAttributeIconSize 0
+
+package "Facade Layer" {
+    class PgOrmFacade {
+        - pool: Pool
+        + entityManager: EntityManager
+        + static fromConfig(config): PgOrmFacade
+        + synchronize(): Promise<void>
+        + close(): Promise<void>
+    }
 }
 
-class Pool {
-    + query(text, params): Promise
-    + end(): Promise
+package "Data Access Layer" {
+    class EntityManager {
+        - repositories: Map<Function, Repository>
+        + getRepository<T>(target): Repository<T>
+    }
+
+    class Repository<T> {
+        - metadata: EntityMetadata
+        + save(entity): Promise<T>
+        + find(options): Promise<T[]>
+        + findOne(options): Promise<T | null>
+        + delete(criteria): Promise<DeleteResult>
+        + update(criteria, data): Promise<UpdateResult>
+    }
+
+    class SelectOperation {
+        + findAll(options): Promise<any[]>
+    }
+    class InsertOperation {
+        + execute(data): Promise<any>
+    }
+    class UpdateOperation {
+        + execute(options): Promise<any[]>
+    }
+    class DeleteOperation {
+        + deleteMany(options): Promise<number>
+    }
 }
 
-class EntityMetadata {
-    + tableName: string
-    + columns: ColumnMetadata[]
-    + relations: RelationMetadata[]
-    + ctor: Function
+package "Metadata Layer" {
+    class EntityStore <<singleton>> {
+        + entityMetadata: Map<Function, EntityMetadata>
+        + ensureEntityMetadata(ctor): EntityMetadata
+    }
+
+    interface EntityMetadata {
+        + tableName: string
+        + columns: ColumnMetadata[]
+        + relations: RelationMetadata[]
+        + ctor: Function
+    }
+
+    interface ColumnMetadata {
+        + name: string
+        + type: ColumnDbEngineType
+        + propertyName: string
+        + nullable: boolean
+        + primary: boolean
+        + unique: boolean
+        + autoIncrement: boolean
+    }
+
+    interface RelationMetadata {
+        + kind: RelationKind
+        + target: Function
+        + propertyName: string
+        + joinColumn: RelationJoinColumn
+    }
 }
 
-class ColumnMetadata {
-    + name: string
-    + type: string
-    + nullable: boolean
-    + primary: boolean
+package "External" {
+    class Pool <<node-postgres>> {
+        + query(text, params): Promise<QueryResult>
+        + end(): Promise<void>
+    }
 }
 
-class RelationMetadata {
-    + kind: string
-    + target: Function
-    + joinColumn: RelationJoinColumn
-}
+PgOrmFacade *-- EntityManager : manages
+PgOrmFacade --> Pool : manages
+PgOrmFacade ..> EntityStore : reads metadata
 
-class EntityStore {
-    + entityMetadata: Map<Function, EntityMetadata>
-    + ensureEntityMetadata(ctor): EntityMetadata
-}
+EntityManager o-- Repository : maintains
+Repository --> EntityMetadata : uses
+Repository --> SelectOperation : delegates to
+Repository --> InsertOperation : delegates to
+Repository --> UpdateOperation : delegates to
+Repository --> DeleteOperation : delegates to
 
-PgOrmFacade --> Pool
-PgOrmFacade ..> EntityStore
-EntityStore *-- EntityMetadata
-EntityMetadata *-- ColumnMetadata
-EntityMetadata *-- RelationMetadata
+SelectOperation --> Pool : queries
+InsertOperation --> Pool : queries
+UpdateOperation --> Pool : queries
+DeleteOperation --> Pool : queries
+
+EntityStore *-- EntityMetadata : stores
+EntityMetadata *-- ColumnMetadata : defines
+EntityMetadata *-- RelationMetadata : defines
 @enduml

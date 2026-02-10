@@ -4,24 +4,37 @@ class Client {
 
 class PgOrmFacade {
     + synchronize()
+    + entityManager: EntityManager
 }
 
 package "Subsystem" {
-    class EntityStore {
+    class EntityStore <<singleton>> {
         + resolvePendingRelations()
         + entityMetadata
     }
-    class SchemaSync {
+    class SchemaSync <<utility>> {
         + loadCurrentSchema()
         + tableNeedsRebuild()
     }
-    class PostgresDriver {
+    class EntityManager {
+        + getRepository(target)
+    }
+    class Repository {
+        + save()
+        + find()
+        + delete()
+    }
+    interface PostgresDriver {
         + execute()
     }
 }
 
 Client -> PgOrmFacade : uses
+PgOrmFacade *-- EntityManager : owns
 PgOrmFacade -> EntityStore : coordinates
 PgOrmFacade -> SchemaSync : coordinates
-PgOrmFacade -> PostgresDriver : coordinates
+PgOrmFacade -> PostgresDriver : uses
+EntityManager o-- Repository : manages
+Repository -> PostgresDriver : uses
+SchemaSync -> PostgresDriver : uses
 @enduml
