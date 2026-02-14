@@ -6,7 +6,7 @@ export const columnDbEngineTypes = [
 ] as const;
 export type ColumnDbEngineType = (typeof columnDbEngineTypes)[number];
 
-export type GenericConstructor<T = object> = { new (...args: unknown[]): T };
+export type GenericConstructor<T = object> = { new(...args: unknown[]): T };
 
 export type ColumnMetadata = {
   name: string;
@@ -48,10 +48,26 @@ export type RelationMetadata = {
   inverseProperty?: string | symbol;
 };
 
+export enum InheritanceType {
+  TABLE_PER_CLASS = 'TABLE_PER_CLASS',
+  SINGLE_TABLE = 'SINGLE_TABLE',
+  // JOINED = 'JOINED',                 // Future
+}
+
+export type InheritanceOptions = {
+  strategy: InheritanceType;
+  discriminatorColumn?: string;
+};
+
 export type EntityMetadata = {
   tableName: string;
   columns: ColumnMetadata[];
   relations: RelationMetadata[];
   ctor: GenericConstructor;
   isMappedSuperclass?: boolean;
+  inheritanceStrategy?: InheritanceType;
+  discriminatorColumn?: string;
+  discriminatorValue?: string;
+  stiRootTableName?: string;
+  stiChildColumns?: ColumnMetadata[];
 };

@@ -1,5 +1,7 @@
 export { Column } from './decorators/column-decorator';
 export { Entity } from './decorators/entity-decorator';
+export { Inheritance } from './decorators/inheritance-decorator';
+export { DiscriminatorValue } from './decorators/discriminator-value-decorator';
 export { EntityManager } from './entity-manager/manager';
 export { MappedSuperclass } from './decorators/mapped-superclass-decorator';
 export {
@@ -15,6 +17,8 @@ export {
 } from './entity-store';
 export { collectJoinTableMetadata } from './join-tables';
 export {
+  InheritanceType,
+  type InheritanceOptions,
   type ColumnDbEngineType,
   type ColumnMetadata,
   type EntityMetadata,

@@ -1,6 +1,7 @@
 import { collectJoinTableMetadata } from './join-tables';
-import { entityMetadata, resolvePendingRelations } from './entity-store';
+import { entityMetadata, resolvePendingRelations, registerStiChildColumns } from './entity-store';
 import type { EntityMetadata, RelationMetadata } from './types';
+import { InheritanceType } from './types';
 import { Pool, PoolConfig } from 'pg';
 import { loadCurrentSchema } from './schema/snapshot';
 import { DatabaseSchemaSnapshot } from './schema/types';
@@ -22,6 +23,7 @@ export class PgOrmFacade {
 
   async synchronize(): Promise<void> {
     resolvePendingRelations();
+    registerStiChildColumns();
 
     const allEntityMetadata = Array.from(entityMetadata.values());
     const concreteEntityMetadata = allEntityMetadata.filter(
@@ -31,14 +33,22 @@ export class PgOrmFacade {
       (m) => m.isMappedSuperclass
     );
 
+    // STI children don't get their own tables
+    const stiChildMetadata = concreteEntityMetadata.filter(
+      (m) => !!m.stiRootTableName
+    );
+    const nonStiChildMetadata = concreteEntityMetadata.filter(
+      (m) => !m.stiRootTableName
+    );
+
     const joinTableMetadataEntries = collectJoinTableMetadata();
     const activeMetadataEntries = [
-      ...concreteEntityMetadata,
+      ...nonStiChildMetadata,
       ...joinTableMetadataEntries,
     ];
 
     const currentSchema = await loadCurrentSchema(this.pool);
-    
+
     // Identify tables that exist but are now MappedSuperclasses (should be dropped)
     // We check for both exact matches and pluralized versions since users might have inconsistent naming
     const tablesToDropFromMappedSuperclass = mappedSuperclassMetadata.flatMap(
@@ -51,7 +61,7 @@ export class PgOrmFacade {
     const tablesToRebuild = activeMetadataEntries.filter((metadata) =>
       tableNeedsRebuild(metadata, currentSchema)
     );
-    
+
     const tablesUnchanged = activeMetadataEntries.filter(
       (metadata) => !tablesToRebuild.includes(metadata)
     );
@@ -64,7 +74,7 @@ export class PgOrmFacade {
 
     const tablesToDrop = [...tablesToRebuild, ...tablesToDropFromMappedSuperclass];
     await this.dropTables(tablesToDrop);
-    
+
     // Only create tables for concrete entities and join tables
     await this.createTables(tablesToRebuild);
 
@@ -87,13 +97,32 @@ export class PgOrmFacade {
     for (const metadata of metadatas) {
       const tableName = quoteIdentifier(metadata.tableName);
 
-      const columnDefinitions = metadata.columns.map((column) => {
+      const formatColumn = (column: typeof metadata.columns[0]) => {
         const columnType = mapColumnType(column.type, column.autoIncrement);
         const nullability = column.nullable ? '' : ' NOT NULL';
         const primary = column.primary ? ' PRIMARY KEY' : '';
         const uniqueness = !column.primary && column.unique ? ' UNIQUE' : '';
         return `${quoteIdentifier(column.name)} ${columnType}${nullability}${primary}${uniqueness}`;
-      });
+      };
+
+      const columnDefinitions = metadata.columns.map(formatColumn);
+
+      // For STI root entities, add discriminator column + child columns
+      if (
+        metadata.inheritanceStrategy === InheritanceType.SINGLE_TABLE &&
+        !metadata.stiRootTableName
+      ) {
+        const discrimCol = metadata.discriminatorColumn ?? 'type';
+        columnDefinitions.push(
+          `${quoteIdentifier(discrimCol)} TEXT NOT NULL`
+        );
+
+        if (metadata.stiChildColumns) {
+          for (const childCol of metadata.stiChildColumns) {
+            columnDefinitions.push(formatColumn(childCol));
+          }
+        }
+      }
 
       if (columnDefinitions.length === 0) {
         continue;

@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "test-sti": "node dist/test-sti.js"
   },
   "keywords": [],
   "author": "",
